@@ -2,6 +2,19 @@ body{
 	background-color: #000;
 	color: #fff;
 }
+.headerClass : hover{
+	color: lightgreen;
+	font-size: 40px;
+}
+.footer{
+	color: lightgreen;
+	font-size: 40px;
+}
+
+div{
+	background-color: purple;
+}
+
 .headerClass{
 	color: lightgreen;
 	font-size: 40px;
