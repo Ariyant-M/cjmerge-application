@@ -5,7 +5,7 @@ const path = require('path');
 const cssParser = require('css');
 
 
-
+//functions
 function ArrayToSetToArray(arr){
 	arr = new Set(arr);
 	arr = Array.from(arr);
@@ -18,6 +18,8 @@ function combineText(attr, text){
 	styleOutput = styleOutput.concat(text);
 	styleOutput = styleOutput.concat("}\n");
 }
+
+
 //get value by arguments
 var files = process.argv.slice(2);
 var inputFilePath = files[0];
@@ -50,16 +52,30 @@ for(i of allTag){
 		styleID.push(i.attrs.id);
 	}
 }
+
+//get the first link tag and remove all other link tag
 var firstCSSTag = '';
+var internalCSS = '';
 for(i in cssFiles){
 	if(i == 0){
 		firstCSSTag = cssFiles[0];
 	}
+	else if(cssFiles[i].attrs.hasOwnProperty('href')){
+		cssFiles[i].replaceWith('');
+	}
 	else{
 		cssFiles[i].replaceWith('');
 	}
-	
 }
+
+//copy the internal css and remove style tag
+var internalStyle = inputSoup.findAll('style');
+for(i in internalStyle){
+	internalCSS = internalCSS.concat(internalStyle[i].contents[0]._text);
+	internalStyle[i].replaceWith('');
+}
+
+//make array of all selector like class, id, tags
 styleTags = new Set(styleTags);
 styleTags = Array.from(styleTags);
 styleTags = ArrayToSetToArray(styleTags);
@@ -76,14 +92,22 @@ for(i of cssFiles){
 	temp.filter(val => cssFileArray.push(val));
 }
 
+//create object of the css file content by making selector as key and styling as value
 var cssDict = {};
 for(i of cssFileArray){
 	temp = i.split('{');
 	temp[0] = temp[0].replace(/(\r\n|\n|\r)/gm, "");
-	cssDict[temp[0]] = temp[1];
+	getSelector = temp[0].split(",");
+	for(i of getSelector){
+		cssDict[i.trim()] = temp[1];
+	}
 }
+
+//free up space by removing extra variables
 delete cssDict[''];
 delete cssFileArray;
+
+//read data from css object and add them to string
 var styleOutput = '<style>\n';
 for(i in cssDict){
 	if(i[0] == '.'){
@@ -114,7 +138,10 @@ for(i in cssDict){
 		}
 	}
 }
+styleOutput = styleOutput.concat(internalCSS);
 styleOutput = styleOutput.concat("</style>\n");
+
+//convert the css string to Soup
 var cssCont = new JSSoup(styleOutput);
 firstCSSTag.replaceWith(cssCont);
 
@@ -124,15 +151,27 @@ firstCSSTag.replaceWith(cssCont);
 var javaFileCont = '<script>\n';
 var javaFilePath = '';
 var firstScriptTag = '';
+var internalJS = '';
+
+//
 for(i in javaFiles){
 	if(i == 0){
 		firstScriptTag = javaFiles[0];
 	}
+	//only for the external js
+	else if(javaFiles[i].attrs.hasOwnProperty('src')) {
+		javaFiles[i].replaceWith('');
+	}
+	//copy the internal JS and remove script tag
 	else{
+		internalJS = internalJS.concat(javaFiles[i].contents[0]._text);
 		javaFiles[i].replaceWith('');
 	}
 	
 }
+
+//read the data from external JS file
+//copy data from external JS file and append that to the JS string
 for(i of javaFiles){
 	if(i.attrs.hasOwnProperty('src')){
 		javaFilePath = inputDir;
@@ -141,9 +180,15 @@ for(i of javaFiles){
 		javaFileCont = javaFileCont.concat("\n");
 	}
 }
+javaFileCont = javaFileCont.concat(internalJS);
 javaFileCont = javaFileCont.concat('\n</script>');
+
+//convert the JS string to Soup
 var JSCont = new JSSoup(javaFileCont);
+
+//add the soup to the main soup by replacing it with first JS tag
 firstScriptTag.replaceWith(JSCont);
 
 //write final soup content to the given output file
 fs.writeFileSync(outputFilePath,inputSoup.prettify());
+console.log("\n\n\n==>file has been merged, available at location: ",outputFilePath,"\n\n");
