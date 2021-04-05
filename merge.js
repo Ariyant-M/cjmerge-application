@@ -12,7 +12,7 @@ function ArrayToSetToArray(arr){
 	return arr;
 }
 
-function combineText(attr, text){
+function cssStringGenerator(attr, text){
 	styleOutput = styleOutput.concat(attr);
 	styleOutput = styleOutput.concat("{\n");
 	styleOutput = styleOutput.concat(text);
@@ -37,7 +37,16 @@ var inputSoup = new JSSoup(inputFileCont);
 //find all link and script tag
 var javaFiles = inputSoup.findAll('script');
 var cssFiles = inputSoup.findAll('link');
+var imageTags = inputSoup.findAll('img');
 
+//convert all image file to base64
+
+for(i of imageTags){
+	if(fs.existsSync(i.attrs.src)){
+		var imageBase64 = fs.readFileSync(i.attrs.src, 'base64');
+		i.attrs.src = "data:image/png;base64,".concat(imageBase64);
+	}
+}
 //get all styling tag from html
 var allTag = inputSoup.findAll();
 var styleTags = [];
@@ -88,7 +97,9 @@ var cssFilePath = '';
 for(i of cssFiles){
 	cssFilePath = inputDir;
 	cssFilePath = cssFilePath.concat(i.attrs.href.substring(1));
-	temp = fs.readFileSync(cssFilePath, 'utf8').split('}');
+	temp = fs.readFileSync(cssFilePath, 'utf8');
+	temp = temp.replace(/(\/\*[\w\'\s\r\n\*]*\*\/)|(\/\/[\w\s\']*)|(\<![\-\-\s\w\>\/]*\>)/gm, '');
+	temp = temp.split('}');
 	temp.filter(val => cssFileArray.push(val));
 }
 
@@ -99,14 +110,25 @@ for(i of cssFileArray){
 	temp[0] = temp[0].replace(/(\r\n|\n|\r)/gm, "");
 	getSelector = temp[0].split(",");
 	for(i of getSelector){
-		cssDict[i.trim()] = temp[1];
+		cssDict[i.trim()] = temp.slice(1);
 	}
 }
-
+console.log(cssDict);
 //free up space by removing extra variables
 delete cssDict[''];
 delete cssFileArray;
 
+// for(i in cssDict){
+// 	if(i[0] == '.'|| i[0] == '#'){
+
+// 	}
+// 	else if(i[0] == '@'){
+
+// 	}
+// 	else{
+
+// 	}
+// }
 //read data from css object and add them to string
 var styleOutput = '<style>\n';
 for(i in cssDict){
@@ -114,7 +136,7 @@ for(i in cssDict){
 		temp = i.split(/[\s,; ]+/);
 		for(j of styleClass){
 			if(j == temp[0].substring(1)){
-				combineText(i, cssDict[i]);
+				cssStringGenerator(i, cssDict[i]);
 				delete cssDict[i];
 			}
 		}
@@ -123,21 +145,27 @@ for(i in cssDict){
 		temp = i.split(/[\s,; ]+/);
 		for(j of styleID){
 			if(j == temp[0].substring(1)){
-				combineText(i, cssDict[i]);
+				cssStringGenerator(i, cssDict[i]);
 				delete cssDict[i];
 			}
 		}
+	}
+
+	//for media query
+	else if(i[0] == '@'){
+		console.log(cssDict);
 	}
 	else{
 		temp = i.split(/[\s,; ]+/);
 		for(j of styleTags){
 			if(j == temp[0]){
-				combineText(i, cssDict[i]);
+				cssStringGenerator(i, cssDict[i]);
 				delete cssDict[i];
 			}
 		}
 	}
 }
+
 styleOutput = styleOutput.concat(internalCSS);
 styleOutput = styleOutput.concat("</style>\n");
 
@@ -190,5 +218,5 @@ var JSCont = new JSSoup(javaFileCont);
 firstScriptTag.replaceWith(JSCont);
 
 //write final soup content to the given output file
-fs.writeFileSync(outputFilePath,inputSoup.prettify());
-console.log("\n\n\n==>file has been merged, available at location: ",outputFilePath,"\n\n");
+// fs.writeFileSync(outputFilePath,inputSoup.toString());
+// console.log("\n\n\n==>file has been merged, available at location: ",outputFilePath,"\n\n");

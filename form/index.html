@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<link rel="stylesheet" type="text/css" href="./style.css">
+	<script type="text/javascript" src="./main.js"></script>
+	<title>773 - COVID-19 POST-ACUTE CARE COMMUNICATION FORM</title>
+</head>
+<body>
+	<form action="{{data.values.submit_url}}" method="POST" name="submitForm">
+      <input name="global_normal_color" type="hidden" id="global_normal_color" value="{{data.values.global_normal_color}}">
+      <input name="security_id" type="hidden" id="security_id" value="{{data.values.security_id}}">
+      <input name="module_code" type="hidden" id="module_code" value="{{data.values.module_code}}">
+      <input name="format" type="hidden" id="format" value="{{data.values.format}}">
+      <input name="global_highlight_color" type="hidden" id="global_highlight_color" value="{{data.values.global_highlight_color}}">
+      <input name="discharge_id" type="hidden" id="discharge_id" value="{{data.values.discharge_id}}">
+      <input name="provider_id" type="hidden" id="provider_id" value="{{data.values.provider_id}}">
+      <input name="submit_url" type="hidden" id="submit_url" value="{{data.values.submit_url}}">
+      <input name="global_gray_color" type="hidden" id="global_gray_color" value="{{data.values.global_gray_color}}">
+      <input name="form_id" type="hidden" id="form_id" value="{{data.values.form_id}}">
+      <input name="session_id" type="hidden" id="session_id" value="{{data.values.session_id}}">
+      <div align="center">
+      <div class="fullPage">
+        <!-- Page header Start -->
+        <table class="headerTable">
+          <tr align="right">
+            <td colspan="2">
+              <input class="buttonps noprint" style="width:120px" type="button" name="print_button1" id="print_button1" value="Print" onclick="window.print()"/>
+              <input class="buttonps noprint" style="width:120px" name="save_my_work_button1" id="save_my_work_button1" type="Submit" value="Save My Work"/>
+            </td>
+          </tr>
+        </table>
+        <!-- page header end -->
+
+        <!-- top type-1 input -->
+        <table class="titleTable">
+          <tr align="center">
+            <td>
+            	<!-- update -->
+              <input type="text" name="" style="background-color: #fff; height: 27px; width: 330px; text-align: center; font-size: 16px; font-weight: bold;">
+            </td>
+          </tr>        
+        </table >
+        <!-- end top type-1 input -->
+
+        <!-- documnet start -->
+        <div class="formContent">
+        <table>
+        	<tr align="left">
+        		<td>
+        			Dear Patient or Patient Representative:
+        		</td>
+        	</tr>
+        	<tr>
+        		<td>
+        			<span></span>
+        		</td>
+        	</tr>
+        	<tr>
+        		<td>
+        			<span class="tab"></span>Your physician has ordered/recommended additional or continued services after you leave the Hospital. Please note some providers may be affiliated with, and/or owned or controlled by, the Hospital or may participate in the Hospital's established post-acute provider network.
+        			<br>
+        			<br>
+        			<br>
+        			<label>
+		                <input type="checkbox" class="custominput" id="x773_affiliated_hospital" name="x773_affiliated_hospital" onChange="chkSetValue(this)"
+		                       {{#if_eq data.values.x773_affiliated_hospital "yes" }}
+		                             checked
+		                       {{/if_eq}}
+		                       >
+		                <span class="box"></span>
+		                The provider you selected is affiliated with, and/or owned or controlled by, the Hospital.
+		                <br>
+		                <br>
+		            </label>
+	                <label >
+		                <input type="checkbox" class="custominput" id="x773_participant_hospital" name="x773_participant_hospital" onChange="chkSetValue(this)"
+		                       {{#if_eq data.values.x773_participant_hospital "yes" }}
+		                             checked
+		                       {{/if_eq}}
+		                       >
+		                <span class="box"></span>
+		                <span>The provider you selected is a participant in the Hospital's established post-acute provider network.
+		                </span>
+		            </label>
+        		</td>
+        	</tr>
+        	<tr>
+        		<td>
+        			<span></span>
+        		</td>
+        	</tr>
+        	<tr>
+        		<td>
+        			<br>
+        			You have the freedom to choose among providers and suppliers of post-discharge services.
+        			<br>
+        			<b>This is your choice.</b>
+        			<br>
+        			<br>
+        			We are providing the following lists, as the case may be, for your review and decision making:
+        			<br>
+        			<ul>
+        				<li>
+        					When discharged to a home health agency (HHA): A list of all Medicare participating HHAs that: (i) are available to you, (ii) serve the geographic area (as defined by the HHA) in which you reside, and (iii) have asked the Hospital to be listed as available to you, along with data on quality and resource use measures that are relevant and applicable to your goals of care and treatment preferences.
+        				</li>
+        				<br>
+        				<li>
+        					When discharged to a skilled nursing facility (SNF), inpatient rehabilitation facility/unit (IRF), or long term care hospital (LTCH): A list of all Medicare participating SNFs, IRFs or LTCHs, as the case may be, that: (i) are available to you and (ii) serve the geographic area requested by you, along with data on quality and resource use measures that are relevant and applicable to your goals and treatment preferences.
+        				</li>
+        			</ul>
+        			Please be aware that some insurance companies have contracts with specific providers, suppliers and facilities which may dictate which post-acute provider/service you can use. If you choose a post-acute provider/service that is not a provider under your insurance plan or not participating in Medicare, you could be liable for the expense incurred. If you are enrolled in a managed care organization, you should verify in advance whether your chosen provider is in-network.
+        		</td>
+        	</tr>
+        </table>
+
+        <table class="pageTableContent">
+        	<tr>
+        		<td>
+        			<br>
+        			<b>Patient/Patient's Representative:</b>
+        			<table>
+        				<tr>
+        					<td>
+        						_________
+        					</td>
+        					<td align="center" style="width: 70px;">
+        						(Initial)
+        					</td>
+        					<td>
+        						Please acknowledge that you <b>received</b> the list of HHAs, SNFs, IRFs, or LTCHs, as the case may be;
+        					</td>
+        				</tr>
+        				<tr>
+        					<td colspan="3" align="center">
+        						OR
+        					</td>
+        				</tr>
+        				<tr>
+        					<td>
+        						_________
+        					</td>
+        					<td align="center" style="width: 70px;">
+        						(Initial)
+        					</td>
+        					<td>
+        						Please acknowledge that you <b>declined</b> the list of HHAs, SNFs, IRFs, orLTCHS, as the case may be.
+        					</td>
+        				</tr>
+        			</table>
+        		</td>
+        	</tr>
+        </table>
+
+
+        <table class="pageTableContent">
+        	<tr align="left">
+        		<td>
+        			&emsp; I here by choose to use
+        		</td>
+        		<td>
+        			<input class="type3Input" type="text" id="x773_choose_to_use" name="x773_choose_to_use" align="left" style="width: 420px;" value="{{data.values.x773_choose_to_use}}">
+        		</td>
+        	</tr>
+        	<tr>
+        		<td>
+        			
+        		</td>
+        	</tr>
+        </table>
+
+
+		<table class="tableBorder " width="570px">
+			<tr class="tableBorder">
+				<td width="20%">
+					<b>Patient Signature:</b>
+				</td>
+				<td width="40%" align="left">
+					<input class="type3Input" type="text" id="x773_sign_patient" name="x773_sign_patient" 
+					value="{{data.values.x773_sign_patient}}" size="32">
+				</td>
+				<td style="border-left: 1px solid black;">
+					<b>Date/Time:</b>
+				</td>
+				<td >
+					<input class="type3Input" type="text" id="x773_date_time_patient" name="x773_date_time_patient" value="{{data.values.x773_date_time_patient}}" size="16">
+				</td>
+			</tr>
+		</table>
+		<table class="tableBorder " width="570px">
+			<tr class="tableBorder">
+				<td width="40%">
+					<b>Surrogate/Guardian Signature:</b>
+					<br>
+					<input class="type3Input" type="text" id="x773_sign_guardian" name="x773_sign_guardian" value="{{data.values.x773_sign_guardian}}" size="32">
+				</td>
+				<td width="25%" style="border-left: 1px solid black;">
+					<b>Relationship:</b>
+					<input class="type3Input" type="text" id="x773_relationship" name="x773_relationship" value="{{data.values.x773_relationship}}" size="22">
+				</td>
+				<td style="border-left: 1px solid black;">
+					<b>Date/Time:</b>
+					<br>
+					<input class="type3Input" type="text" id="x773_date_guardian" name="x773_date_guardian" value="{{data.values.x773_date_guardian}}" size="14">
+				</td>
+			</tr>
+		</table>
+		<table class="tableBorder " width="570px">
+			<tr class="tableBorder">
+				<td>
+					<b>Verbal Consent Obtained From:</b>
+					<br>
+					<input class="type3Input" type="text" id="x773_verbal_consent" name="x773_verbal_consent" value="{{data.values.x773_verbal_consent}}" size="39">
+				</td>
+				<td style="border-left: 1px solid black;">
+					<b>Verbal Consent Obtained By:</b>
+					<input class="type3Input" type="text" id="x773_verbal_obtained" name="x773_verbal_obtained" value="{{data.values.x773_verbal_obtained}}" size="35">
+				</td>
+			</tr>
+		</table>
+		<table class="tableBorder " width="570px">
+			<tr class="tableBorder" width="100%">
+				<td>
+					<b>Reason for Verbal Consent : </b>
+					<input class="type3Input" type="text" id="x773_verbal_reason" name="x773_verbal_reason" value="{{data.values.x773_verbal_reason}}" size="55">
+				</td>
+			</tr>
+		</table>
+    	</div>
+    	<br>
+    	<table width="620px" align="center">
+	  	  	<tr>
+	  	  		<td width="20%" style="vertical-align: top; font-size: 12px;" align="center">
+	  	  			<img src="data:image/png;base64,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" alt="bar-code">
+	  	  			<br>
+	  	  			<strong>January 2021</strong>
+	  	  		</td>
+	  	  		<td width="43%" align="top" style="line-height: 80%; vertical-align: top;">
+	  	  			<span class="smallText"><em>
+	  	  			The statements contained in this document are solely those of the authors and do not necessarily reflect the views or policies of CMS. The authors assume responsibility for the accuracy and completeness of the information contained in this document.
+	  	  			</em></span>
+	  	  		</td>
+	  	  		<td width="34%">
+	  	  			<div style="margin: 0px 5px; border: 2px solid #000;">
+	  	  				<table class="smallText" style="line-height: 80%;">
+	  	  					<tr>
+	  	  						<td width="60">Patient Name:</td>
+	  	  						<td align="right">
+	  	  							<input type="text" id="patient_name" name="patient_name" class="whiteInput" value="{{data.values.patient_name}}" size="13" disabled>
+	  	  						</td>
+	  	  					</tr>
+	  	  					<tr>
+	  	  						<td>
+	  	  							Account #
+	  	  						</td>
+	  	  						<td align="right">
+	  	  							<input type="text" id="episode_identifier" name="episode_identifier" class="whiteInput" value="{{data.values.episode_identifier}}" size="13" disabled>
+	  	  						</td>
+	  	  					</tr>
+	  	  					<tr>
+	  	  						<td>
+	  	  							MRN #
+	  	  						</td>
+	  	  						<td align="right">
+	  	  							<input type="text" id="mrn" name="mrn" class="whiteInput" value="{{data.values.mrn}}" size="13" disabled>
+	  	  						</td>
+	  	  					</tr>
+	  	  					<tr>
+	  	  						<td>
+	  	  							Admit Date #
+	  	  						</td>
+	  	  						<td align="right">
+	  	  							<input type="text" id="admission_date" name="admission_date" class="whiteInput" value="{{data.values.admission_date}}" size="13" disabled>
+	  	  						</td>
+	  	  					</tr>
+	  	  				</table>
+	  	  			</div>
+	  	  		</td>
+	  	  	</tr>
+	  	</table>
+      </div>
+  	  </div>
+  </form>
+</body>
+</html>

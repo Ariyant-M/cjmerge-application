@@ -6,11 +6,14 @@ body{
 	color: lightgreen;
 	font-size: 40px;
 }
+/*class for footer*/
 .footer{
 	color: lightgreen;
 	font-size: 40px;
 }
-
+/*this is a 
+multiple 
+line comment*/
 div{
 	background-color: purple;
 }
