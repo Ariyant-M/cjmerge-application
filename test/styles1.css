@@ -10,9 +10,16 @@ h1 {
 p:hover {
   color: lightgreen;
 }
-
 @media print {
   #para {
     visibility: hidden;
   }
 }
+/*this is a 
+multiple 
+line comment*/
+/*@media print {
+  #para {
+    visibility: hidden;
+  }
+}*/
