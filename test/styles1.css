@@ -14,6 +14,9 @@ p:hover {
   #para {
     visibility: hidden;
   }
+  .headerClass{
+  	visibility: hidden;
+  }
 }
 /*this is a 
 multiple 

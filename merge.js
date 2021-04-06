@@ -10,6 +10,10 @@ function getDistinct(arr) {
   arr = Array.from(arr);
   return arr;
 }
+
+//function to generate CSS string
+function cssStringGenerator(selector, value) {}
+
 //get input and output file location
 var inputFile = process.argv[2];
 var outputFile = process.argv[3];
@@ -95,14 +99,51 @@ for (i of cssFileArray) {
 
 //create object of the style by replaceing with new one
 var cssDict = {};
+//array made of multiple css data
 for (i of parsedArray) {
+  //loop to find out its a media type or a normal rule
   for (j of i.stylesheet.rules) {
     if (j.type == "rule") {
+      //get the selector name
       for (selector of j.selectors) {
-        console.log(j.)
+        //check in
+        var mainSelector = selector.split(/[\s,; :>+~]+/);
+        if (selector[0] == ".") {
+          if (CSSclass.includes(mainSelector[0].substring(1))) {
+            //
+            var styleValue = "";
+            for (style of j.declarations) {
+              styleValue =
+                styleValue + style.property + " : " + style.value + "\n";
+            }
+            cssDict[selector] = styleValue;
+          }
+        } else if (selector[0] == "#") {
+          if (CSSid.includes(mainSelector[0].substring(1))) {
+            //
+            var styleValue = "";
+            for (style of j.declarations) {
+              styleValue =
+                styleValue + style.property + " : " + style.value + "\n";
+            }
+            cssDict[selector] = styleValue;
+          }
+        } else {
+          if (htmlAttr.includes(mainSelector[0])) {
+            //
+            var styleValue = "";
+            for (style of j.declarations) {
+              styleValue =
+                styleValue + style.property + " : " + style.value + "\n";
+            }
+            cssDict[selector] = styleValue;
+          }
+        }
       }
     } else if (j.type == "media") {
-      console.log("media");
+      for (i of j.rules) {
+        console.log(i.selectors);
+      }
     }
   }
 }

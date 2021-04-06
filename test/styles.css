@@ -19,6 +19,8 @@ div{
 }
 
 .headerClass{
-	color: lightgreen;
-	font-size: 40px;
+	color: pink;
+}
+p{
+	background-color: black;
 }

@@ -26,6 +26,34 @@ function printusageExample() {
   );
 }
 
+//Function to print the report after the process finishes
+function printEndResult(
+  fileCount,
+  timeTaken,
+  checkCount,
+  sourceLoc,
+  destLoc,
+  scanCount,
+  acceptCount
+) {
+  //Calculate the input and output file size
+  let sourceFileSize = (fs.statSync(sourceLoc).size / 1024).toFixed(3);
+  let destFileSize = (fs.statSync(destLoc).size / 1024).toFixed(3);
+
+  console.log("\n");
+  console.log("No of files merged = ", fileCount);
+  console.log("Time taken in seconds = ", timeTaken / 1000);
+  console.log("Total number of comparisions = ", checkCount);
+  console.log("Total number of scanned classes = ", scanCount);
+  console.log("Total number of accepted classes = ", acceptCount);
+  console.log("Acceptance percentage = ", (acceptCount / scanCount) * 100);
+  console.log("Input file = ", sourceLoc);
+  console.log("Output file = ", destLoc);
+  console.log("Input file size in Kb = ", sourceFileSize);
+  console.log("Output file size in Kb = ", destFileSize);
+  console.log("\n");
+}
+
 //Function that takes selector string and class name as input, and returns true if class is a part of that selector, false otherwise
 function isClassSelector(selector, currentClass) {
   return selector.includes(currentClass);
@@ -36,6 +64,9 @@ function isClassSelector(selector, currentClass) {
 function isPureElementSelector(selector) {
   return !(selector.includes("#") || selector.includes("."));
 }
+
+//Get the time instance the process starts
+let startTime = new Date().getTime();
 
 //Handle the case for one or more undefined CLI arguments
 if (sourcePath == undefined || destPath == undefined) {
@@ -91,7 +122,6 @@ var htmlfileContent = fs.readFileSync(sourcePath, "utf8");
 var htmlsoup = new JSSoup(htmlfileContent);
 
 //Make references to head, script, css, and image tags
-var headTag = htmlsoup.find("head");
 var scriptTagArray = htmlsoup.findAll("script").filter((eachTag) => {
   return eachTag.attrs.type == "text/javascript";
 });
@@ -99,6 +129,11 @@ var cssTagArray = htmlsoup.findAll("link").filter((eachTag) => {
   return eachTag.attrs.type == "text/css";
 });
 var imgTagArray = htmlsoup.findAll("img");
+
+//Initialize algorithm counters
+var comparisionCount = 0;
+var totalCSSClassesScanned = 0;
+var totalCSSClassesAccepted = 0;
 
 //Start the aggregation process
 
@@ -197,90 +232,102 @@ if (cssTagArray.length > 0) {
 
   let cssParsedList = cssParsedData.stylesheet.rules;
   //Iterate through each set of rules and consider it only if it is used in HTML template
+
   for (var index in cssParsedList) {
-    let eachRule = cssParsedList[index];
-    if (!Object.is(eachRule, null)) {
-      if (eachRule.type === "rule") {
+    let currentRule = cssParsedList[index];
+
+    if (currentRule.type === "rule") {
+      //Increment the counter for scanned CSS class
+      totalCSSClassesScanned++;
+
+      //Get the selector of the current rule set as a string
+      let selectorString = currentRule.selectors.join(", ");
+
+      //Iterate through the set of used CSS classes in HTML
+      Array.from(usedCSSClassSet).every((eachUsedCSSClass) => {
+        //Increment the counter for comparision
+        comparisionCount++;
+
+        //If that used class of HTML is a substring in the current selector or if the current selector is an element selector
+        if (
+          isClassSelector(selectorString, eachUsedCSSClass) ||
+          isPureElementSelector(selectorString)
+        ) {
+          //Increment the counter for accepted CSS class
+          totalCSSClassesAccepted++;
+
+          //Construct a css settings object out of the rule set of current selector
+          //Schema: [{attribute, value}+]
+          let CSS_Settings = [];
+          currentRule.declarations.forEach((eachRuleLine) => {
+            CSS_Settings.push({
+              attribute: eachRuleLine.property,
+              value: eachRuleLine.value,
+            });
+          });
+
+          // Push the css object into the list of filtered CSS rule objects
+          filteredCSSRules[selectorString] = CSS_Settings;
+
+          return false;
+        }
+        return true;
+      });
+    } else if (currentRule.type === "media") {
+      //Get the selector of the current media rule as a string
+      let selectorString = "@media " + currentRule.media;
+
+      //Variable that references all the rules under the current media rule
+      let mediaRules = currentRule.rules;
+
+      //Variable to hold all the CSS rules under the current media rule as CSS objects
+      //Schema: {selector: {attribute, value}+}
+      let CSS_Settings_Under_Media = {};
+
+      //Iterate through the CSS rules under the current media rule
+      mediaRules.forEach((eachMediaRule) => {
+        //Increment the counter for scanned CSS class
+        totalCSSClassesScanned++;
+
         //Get the selector of the current rule set as a string
-        let selectorString = eachRule.selectors.join(", ");
+        let mediaRule_subSelectorString = eachMediaRule.selectors.join(", ");
 
         //Iterate through the set of used CSS classes in HTML
         Array.from(usedCSSClassSet).every((eachUsedCSSClass) => {
+          //Increment the counter for comparision
+          comparisionCount++;
+
           //If that used class of HTML is a substring in the current selector or if the current selector is an element selector
           if (
-            isClassSelector(selectorString, eachUsedCSSClass) ||
-            isPureElementSelector(selectorString)
+            isClassSelector(mediaRule_subSelectorString, eachUsedCSSClass) ||
+            isPureElementSelector(mediaRule_subSelectorString)
           ) {
+            //Increment the counter for accepted CSS class
+            totalCSSClassesAccepted++;
+
             //Construct a css settings object out of the rule set of current selector
             //Schema: [{attribute, value}+]
             let CSS_Settings = [];
-            eachRule.declarations.forEach((eachRuleLine) => {
+            eachMediaRule.declarations.forEach((eachRuleLine) => {
               CSS_Settings.push({
                 attribute: eachRuleLine.property,
                 value: eachRuleLine.value,
               });
             });
 
-            // Push the css object into the list of filtered CSS rule objects
-            filteredCSSRules[selectorString] = CSS_Settings;
-
-            //Set the accepted CSS rule to null to avoid complexity in next run
-            cssParsedList[index] = null;
+            //Add the newly created CSS object to the variable that holds all the CSS rules under the current media rule
+            CSS_Settings_Under_Media[
+              mediaRule_subSelectorString
+            ] = CSS_Settings;
 
             return false;
           }
           return true;
         });
-      } else if (eachRule.type === "media") {
-        //Get the selector of the current media rule as a string
-        let selectorString = "@media " + eachRule.media;
+      });
 
-        //Variable that references all the rules under the current media rule
-        let mediaRules = eachRule.rules;
-
-        //Variable to hold all the CSS rules under the current media rule as CSS objects
-        //Schema: {selector: {attribute, value}+}
-        let CSS_Settings_Under_Media = {};
-
-        //Iterate through the CSS rules under the current media rule
-        mediaRules.forEach((eachMediaRule) => {
-          //Get the selector of the current rule set as a string
-          let mediaRule_subSelectorString = eachMediaRule.selectors.join(", ");
-
-          //Iterate through the set of used CSS classes in HTML
-          Array.from(usedCSSClassSet).every((eachUsedCSSClass) => {
-            //If that used class of HTML is a substring in the current selector or if the current selector is an element selector
-            if (
-              isClassSelector(mediaRule_subSelectorString, eachUsedCSSClass) ||
-              isPureElementSelector(mediaRule_subSelectorString)
-            ) {
-              //Construct a css settings object out of the rule set of current selector
-              //Schema: [{attribute, value}+]
-              let CSS_Settings = [];
-              eachMediaRule.declarations.forEach((eachRuleLine) => {
-                CSS_Settings.push({
-                  attribute: eachRuleLine.property,
-                  value: eachRuleLine.value,
-                });
-              });
-
-              //Add the newly created CSS object to the variable that holds all the CSS rules under the current media rule
-              CSS_Settings_Under_Media[
-                mediaRule_subSelectorString
-              ] = CSS_Settings;
-
-              //Set the accepted CSS rule to null to avoid complexity in next run
-              mediaRules[mediaRules.indexOf(eachMediaRule)] = null;
-
-              return false;
-            }
-            return true;
-          });
-        });
-
-        // Push the mediaquery css object into the list of filtered CSS rule objects
-        filteredCSSRules[selectorString] = CSS_Settings_Under_Media;
-      }
+      // Push the mediaquery css object into the list of filtered CSS rule objects
+      filteredCSSRules[selectorString] = CSS_Settings_Under_Media;
     }
   }
 
@@ -347,12 +394,6 @@ if (cssTagArray.length > 0) {
   firstCSSTag.replaceWith(newCSSSoupToAppend);
 }
 
-//Variable to hold the content of the body tag as it is
-//This preserves the original indentation
-var preservedbodyContent = htmlfileContent.match(
-  /<body[^>]*>((.|[\n\r])*)<\/body>/
-)[0];
-
 //This block of code executes only if any image tag is found in HTML file
 if (imgTagArray.length > 0) {
   imgTagArray.forEach((eachImageTag) => {
@@ -369,16 +410,42 @@ if (imgTagArray.length > 0) {
       path.extname(absPathtoImage).slice(1) +
       ";base64," +
       base64Code;
-
-    //Replace the image tag in the body with the processed image tag
-    preservedbodyContent = preservedbodyContent.replace(
-      /<img([\w\W]+?)>/g,
-      eachImageTag.prettify()
-    );
   });
 }
 
-//Variable to hold the prettified processed soup that still holds the body content with preserved indentation
+//Variable to hold the content of the body tag as it is
+//This preserves the original indentation
+var preservedbodyContent = htmlfileContent.match(
+  /<body[^>]*>((.|[\n\r])*)<\/body>/
+)[0];
+
+//Manipulate the image tags in preserved body content
+//Regular expression for catching an image tag
+var imagetagPattern = /<img([\w\W]+?)>/g;
+
+//Index to be used to iterate through processed binary image tags
+var imageTagIndex = 0;
+
+//Loop to iteratively replace image tags
+do {
+  //Variable to hold an image tag of the preserved body content
+  findResult = imagetagPattern.exec(preservedbodyContent);
+
+  //If an image tag is caught
+  if (findResult) {
+    //Get original and new image tag as strings
+    let originalImageTag = findResult[0];
+    let newImageTag = imgTagArray[imageTagIndex++].prettify();
+
+    //Replace original image tag with new image tag in preserved body content
+    preservedbodyContent = preservedbodyContent.replace(
+      originalImageTag,
+      newImageTag
+    );
+  }
+} while (findResult);
+
+//Variable to hold the processed soup that still holds the body content with preserved indentation
 var finalContent = htmlsoup
   .prettify()
   .replace(/<body[^>]*>((.|[\n\r])*)<\/body>/, preservedbodyContent);
@@ -386,5 +453,21 @@ var finalContent = htmlsoup
 //Synchronously write the updated soup to the file mentioned in destination location
 fs.writeFileSync(destPath, finalContent);
 
-//Alert the user of the location of the new file
-console.log("Merged file is available at the location: " + destPath);
+//Get the time instance the process ends
+let endTime = new Date().getTime();
+
+//Calculate the time elapsed by process
+let timeElapsed = endTime - startTime;
+
+//Alert the user of the performance and result
+let totalFileCount =
+  scriptTagArray.length + cssTagArray.length + imgTagArray.length + 1;
+printEndResult(
+  totalFileCount,
+  timeElapsed,
+  comparisionCount,
+  sourcePath,
+  destPath,
+  totalCSSClassesScanned,
+  totalCSSClassesAccepted
+);
